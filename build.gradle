@@ -1,0 +1,135 @@
+buildscript {
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        maven {
+            name = 'SpongePowered'
+            url = 'https://repo.spongepowered.org/repository/maven-public/'
+        }
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+    }
+}
+        
+apply plugin: 'net.minecraftforge.gradle'
+// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+apply plugin: 'org.spongepowered.mixin'
+apply plugin: 'eclipse'
+apply plugin: 'java'
+
+def modGroup = mod_group.replace('${modid}', modid)
+def corePlugin = core_plugin.replace('${modGroup}', modGroup)
+def mixinConfigs = mixin_configs.replace('${modid}', modid)
+
+archivesBaseName = modid
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+
+minecraft {
+    mappings channel: 'snapshot', version: mappingsVersion
+
+    String runArgs = "-mixin.config=${mixinConfigs}"
+    String myJvmArgs = "-Dfml.coreMods.load=${corePlugin}"
+
+    runs {
+        client {
+            args = [runArgs]
+            jvmArgs = [myJvmArgs]
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', loggingMarkers
+            property 'forge.logging.console.level', 'debug'
+        }
+
+        server {
+            args = [runArgs]
+            jvmArgs = [myJvmArgs]
+            property 'forge.logging.markers', loggingMarkers
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
+}
+
+repositories {
+    maven { url = 'https://repo.spongepowered.org/maven' }
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${minecraftVersion}-${forgeVersion}"
+
+    compile('org.spongepowered:mixin:0.8.3-SNAPSHOT') {
+        exclude module: 'guava'
+        exclude module: 'commons-io'
+        exclude module: 'gson'
+    }
+}
+
+task generateJava(type:Copy) {
+    def templateContext = [
+            modid: modid,
+            modName: modName,
+            version: project.version,
+            modGroup: modGroup
+    ]
+    inputs.properties templateContext // for gradle up-to-date check
+    from 'src/template/java'
+    into "$buildDir/generated/java"
+    expand templateContext
+}
+
+configure(generateJava) {
+    group = 'build'
+}
+
+sourceSets.main.java.srcDir "$buildDir/generated/java" // add the extra source dir
+compileJava.dependsOn generateJava // wire the generateJava task into the DAG
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion",    minecraftVersion
+
+    // Go over the main resources and process _only_ the mcmod.info file
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+
+        expand 'modid': project.modid,
+                'modName': project.modName,
+                'version': project.version,
+                'mcversion': project.minecraftVersion,
+                'modDescription': project.modDescription,
+                'modAuthor': project.modAuthor
+    }
+
+    // Go over the main resources again and process _only_ the mixins json
+    from(sourceSets.main.resources.srcDirs) {
+        include mixinConfigs
+
+        expand 'modid': modid, 'modGroup': modGroup
+    }
+
+    // Go over the main resources again and process everything _but_ the already processed files
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+        exclude mixinConfigs
+    }
+}
+
+jar {
+    from {
+        configurations.compile
+                .filter { "mixin-0.8.3-SNAPSHOT.jar" == it.name }
+                .collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+        exclude "LICENSE.txt", "META-INF/MANIFSET.MF", "META-INF/maven/**", "META-INF/*.RSA", "META-INF/*.SF"
+    }
+
+    manifest {
+        attributes "FMLCorePlugin": corePlugin
+        attributes "FMLCorePluginContainsFMLMod": "true"
+        attributes "ForceLoadAsMod": "true"
+        attributes "TweakClass": "org.spongepowered.asm.launch.MixinTweaker"
+        attributes "TweakOrder": "0"
+        attributes "MixinConfigs": mixinConfigs
+    }
+}
