@@ -1,6 +1,8 @@
--------------------------------------------
-Source installation information for modders
--------------------------------------------
+# Pigmen Forgiveness
+An attempt at mimicking the behaviour of the forgiveDeadPlayers gamerule from MC-1.16
+
+# ForgeGradle README contents
+## Source installation information for modders
 This code follows the Minecraft Forge installation methodology. It will apply
 some small patches to the vanilla MCP source code, giving you and it access 
 to some of the data and functions you need to build a successful mod.
@@ -11,8 +13,7 @@ normal code.
 
 Source pack installation information:
 
-Standalone source installation
-==============================
+## Standalone source installation
 
 See the Forge Documentation online for more detailed instructions:
 http://mcforge.readthedocs.io/en/latest/gettingstarted/
@@ -40,13 +41,11 @@ Should it still not work,
 Refer to #ForgeGradle on EsperNet for more information about the gradle environment.
 or the Forge Project Discord discord.gg/UvedJ9m
 
-Forge source installation
-=========================
+## Forge source installation
 MinecraftForge ships with this code and installs it as part of the forge
 installation process, no further action is required on your part.
 
-LexManos' Install Video
-=======================
+## LexManos' Install Video
 https://www.youtube.com/watch?v=8VEdtQLuLO0&feature=youtu.be
 
 For more details update more often refer to the Forge Forums:
