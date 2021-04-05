@@ -6,8 +6,11 @@ import com.degenerate_human.pigmen_forgiveness.interfaces.IProxy;
 import com.google.common.collect.Sets;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -72,18 +75,21 @@ public class PigmenForgiveness {
 
         EntityPlayer player = (EntityPlayer)event.getEntity();
         World world = player.getEntityWorld();
+        for (WorldServer worldServer : FMLCommonHandler.instance().getMinecraftServerInstance().worlds) {
+            targetedPlayers.get(player.getUniqueID())
+                    .parallelStream()
+                    .map(worldServer::getEntityByID)
+                    .map(angeryBoi -> angeryBoi instanceof EntityPigZombie ? angeryBoi : null)
+                    .map(Optional::ofNullable)
+                    .forEach(maybeAngery -> maybeAngery
+                            .ifPresent(angeryBoi -> {
+                                ((ICanForgive)angeryBoi).becomeUnangeryBoi();
+                                world.updateEntity(angeryBoi);
+                                player.sendMessage(new TextComponentString("One angery boi is now calm"));
+                                LOGGER.info("One angery boi is now calm");
+                            }));
 
-        // Unanger all the known angry pigmen
-        targetedPlayers.get(player.getUniqueID())
-                .parallelStream()
-                .map(world::getEntityByID)
-                .map(angeryBoi -> angeryBoi instanceof EntityPigZombie ? angeryBoi : null)
-                .map(Optional::ofNullable)
-                .forEach(maybeAngery -> maybeAngery
-                    .ifPresent(angeryBoi -> {
-                        ((ICanForgive)angeryBoi).becomeUnangeryBoi();
-                        world.updateEntity(angeryBoi);
-                    }));
+        }
 
         // Clear the set of angery boiz
         targetedPlayers.get(player.getUniqueID()).clear();
