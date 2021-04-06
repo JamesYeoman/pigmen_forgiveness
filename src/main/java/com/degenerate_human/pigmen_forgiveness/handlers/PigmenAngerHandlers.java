@@ -1,5 +1,6 @@
 package com.degenerate_human.pigmen_forgiveness.handlers;
 
+import com.degenerate_human.pigmen_forgiveness.Constants;
 import com.degenerate_human.pigmen_forgiveness.PigmenForgiveness;
 import com.degenerate_human.pigmen_forgiveness.events.AngryAtPlayerEvent;
 import com.degenerate_human.pigmen_forgiveness.interfaces.ICanForgive;
@@ -11,11 +12,13 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Mod.EventBusSubscriber(modid = Constants.MODID)
 public class PigmenAngerHandlers {
     private static final Map<UUID, Set<Integer>> targetedPlayers = new ConcurrentHashMap<>();
 
@@ -23,6 +26,8 @@ public class PigmenAngerHandlers {
     public void onAnger(AngryAtPlayerEvent event) {
         UUID player = event.getPlayerUUID();
         Integer angeryBoi = event.getPigZombieID();
+        PigmenForgiveness.LOGGER.info("Pig boi angery");
+
         if (!targetedPlayers.containsKey(event.getPlayerUUID())) {
             Set<Integer> initialiser = Collections.synchronizedSet(Sets.newHashSet(angeryBoi));
             targetedPlayers.put(player, initialiser);
@@ -39,9 +44,13 @@ public class PigmenAngerHandlers {
             return;
         }
 
+        PigmenForgiveness.LOGGER.info("Player ded lol");
+
         if (!(event.getSource().getTrueSource() instanceof EntityPigZombie)) {
             return;
         }
+
+        PigmenForgiveness.LOGGER.info("Killed by pigman lol");
 
         EntityPlayer player = (EntityPlayer)event.getEntity();
         World world = player.getEntityWorld();
