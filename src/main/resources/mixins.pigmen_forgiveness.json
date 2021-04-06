@@ -1,8 +1,8 @@
 {
   "required": true,
-  "package": "${modGroup}.mixin",
+  "package": "com.degenerate_human.pigmen_forgiveness.mixin",
   "compatibilityLevel": "JAVA_8",
-  "refmap": "${modid}.refmap.json",
+  "refmap": "mixins.pigmen_forgiveness.refmap.json",
   "mixins": [
     "MixinEntityPigZombie"
   ],

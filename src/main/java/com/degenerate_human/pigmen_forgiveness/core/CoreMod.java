@@ -1,11 +1,13 @@
 package com.degenerate_human.pigmen_forgiveness.core;
 
 import com.degenerate_human.pigmen_forgiveness.Constants;
+import com.degenerate_human.pigmen_forgiveness.PigmenForgiveness;
 import net.minecraftforge.fml.relauncher.CoreModManager;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.launch.MixinBootstrap;
+import org.spongepowered.asm.mixin.Mixins;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -19,6 +21,7 @@ public class CoreMod implements IFMLLoadingPlugin {
 
     public CoreMod() {
         MixinBootstrap.init();
+        Mixins.addConfiguration("mixins." + Constants.MODID + ".json");
 
         CodeSource codeSource = this.getClass().getProtectionDomain().getCodeSource();
         if (codeSource != null) {
