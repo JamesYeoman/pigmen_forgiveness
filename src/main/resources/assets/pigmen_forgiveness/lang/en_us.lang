@@ -1,0 +1,3 @@
+pigmen_forgiveness.command.forgive.usage=/forgive <player>
+pigmen_forgiveness.command.forgive.insufficient_args=Not enough arguments
+pigmen_forgiveness.command.forgive.bad_entity=Invalid entity supplied. Please supply a player entity

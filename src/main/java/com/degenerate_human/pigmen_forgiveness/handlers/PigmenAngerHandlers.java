@@ -2,8 +2,8 @@ package com.degenerate_human.pigmen_forgiveness.handlers;
 
 import com.degenerate_human.pigmen_forgiveness.Constants;
 import com.degenerate_human.pigmen_forgiveness.PigmenForgiveness;
-import com.degenerate_human.pigmen_forgiveness.events.AngryAtPlayerEvent;
 import com.degenerate_human.pigmen_forgiveness.interfaces.ICanForgive;
+import com.degenerate_human.pigmen_forgiveness.utils.Hooks;
 import com.google.common.collect.Sets;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.player.EntityPlayer;
@@ -11,66 +11,81 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 @Mod.EventBusSubscriber(modid = Constants.MODID)
 public class PigmenAngerHandlers {
     private static final Map<UUID, Set<Integer>> targetedPlayers = new ConcurrentHashMap<>();
 
-    @SubscribeEvent
-    public void onAnger(AngryAtPlayerEvent event) {
-        UUID player = event.getPlayerUUID();
-        Integer angeryBoi = event.getPigZombieID();
-        PigmenForgiveness.LOGGER.info("Pig boi angery");
-
-        if (!targetedPlayers.containsKey(event.getPlayerUUID())) {
-            Set<Integer> initialiser = Collections.synchronizedSet(Sets.newHashSet(angeryBoi));
-            targetedPlayers.put(player, initialiser);
+    public static void onAnger(int pigZombieID, UUID playerID) {
+        if (!targetedPlayers.containsKey(playerID)) {
+            Set<Integer> initialiser = Collections.synchronizedSet(Sets.newHashSet(pigZombieID));
+            targetedPlayers.put(playerID, initialiser);
         } else {
-            synchronized (targetedPlayers.get(player)) {
-                targetedPlayers.get(player).add(angeryBoi);
+            synchronized (targetedPlayers.get(playerID)) {
+                targetedPlayers.get(playerID).add(pigZombieID);
             }
         }
     }
 
-    @SubscribeEvent
-    public void onPlayerDie(LivingDeathEvent event) {
-        if (!(event.getEntity() instanceof EntityPlayer)) {
-            return;
+    public static boolean untargetOnePlayer(UUID playerID) {
+        if (!targetedPlayers.containsKey(playerID)) {
+            return false;
         }
 
-        PigmenForgiveness.LOGGER.info("Player ded lol");
-
-        if (!(event.getSource().getTrueSource() instanceof EntityPigZombie)) {
-            return;
-        }
-
-        PigmenForgiveness.LOGGER.info("Killed by pigman lol");
-
-        EntityPlayer player = (EntityPlayer)event.getEntity();
-        World world = player.getEntityWorld();
-        for (WorldServer worldServer : FMLCommonHandler.instance().getMinecraftServerInstance().worlds) {
-            targetedPlayers.get(player.getUniqueID())
+        for (WorldServer worldServer : Hooks.serverInstance().worlds) {
+            targetedPlayers.get(playerID)
                     .parallelStream()
                     .map(worldServer::getEntityByID)
                     .map(angeryBoi -> angeryBoi instanceof EntityPigZombie ? angeryBoi : null)
                     .map(Optional::ofNullable)
                     .forEach(maybeAngery -> maybeAngery
-                            .ifPresent(angeryBoi -> {
-                                ((ICanForgive)angeryBoi).becomeUnangeryBoi();
-                                world.updateEntity(angeryBoi);
-                                player.sendMessage(new TextComponentString("One angery boi is now calm"));
-                                PigmenForgiveness.LOGGER.info("One angery boi is now calm");
-                            }));
-
+                            .ifPresent(angeryBoi -> ((ICanForgive)angeryBoi).becomeUnangeryBoi()));
         }
 
-        // Clear the set of angery boiz
-        targetedPlayers.get(player.getUniqueID()).clear();
+        targetedPlayers.get(playerID).clear();
+        return true;
+    }
+
+    private static final Predicate<EntityPigZombie> isAngery = (entity) ->
+            entity.isAngry() && entity.getRevengeTarget() instanceof EntityPlayer;
+
+    @SubscribeEvent
+    public static void onWorldLoad(WorldEvent.Load event) {
+        targetedPlayers.clear(); // clear the previous session's targeted players
+        World world = event.getWorld();
+        List<EntityPigZombie> angeryBoiz = world.getEntities(EntityPigZombie.class, isAngery::test);
+
+        // Set up the targetedPlayers cache
+        angeryBoiz.forEach(boi -> {
+            EntityPlayer player = (EntityPlayer) boi.getRevengeTarget();
+            Objects.requireNonNull(player, "This shouldn't happen. God help you if it does.");
+            onAnger(boi.getEntityId(), player.getUniqueID());
+        });
+    }
+
+    @SubscribeEvent
+    public static void onPlayerDie(LivingDeathEvent event) {
+        if (!(event.getEntity() instanceof EntityPlayer)) {
+            return;
+        }
+
+        EntityPlayer player = (EntityPlayer)event.getEntity();
+
+        if (!(event.getSource().getTrueSource() instanceof EntityPigZombie)) {
+            return;
+        }
+
+        if (!targetedPlayers.containsKey(player.getUniqueID())) {
+            return;
+        }
+
+        untargetOnePlayer(player.getUniqueID());
     }
 }

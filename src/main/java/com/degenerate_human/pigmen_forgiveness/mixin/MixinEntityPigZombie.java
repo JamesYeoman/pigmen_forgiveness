@@ -1,6 +1,7 @@
 package com.degenerate_human.pigmen_forgiveness.mixin;
 
 import com.degenerate_human.pigmen_forgiveness.events.AngryAtPlayerEvent;
+import com.degenerate_human.pigmen_forgiveness.handlers.PigmenAngerHandlers;
 import com.degenerate_human.pigmen_forgiveness.interfaces.ICanForgive;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -46,7 +47,7 @@ public abstract class MixinEntityPigZombie extends Entity implements ICanForgive
     @Inject(at = @At("HEAD"), method = "becomeAngryAt")
     private void becomeAngryAt(Entity p_70835_1_, CallbackInfo callbackInfo) {
         if (p_70835_1_ instanceof EntityPlayer) {
-            MinecraftForge.EVENT_BUS.post(new AngryAtPlayerEvent(this.getEntityId(), p_70835_1_.getUniqueID()));
+            PigmenAngerHandlers.onAnger(this.getEntityId(), p_70835_1_.getUniqueID());
         }
     }
 }
