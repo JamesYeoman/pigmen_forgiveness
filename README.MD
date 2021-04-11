@@ -1,5 +1,12 @@
 # Pigmen Forgiveness
-An attempt at mimicking the behaviour of the forgiveDeadPlayers gamerule from MC-1.16
+An attempt at mimicking the behaviour of the forgiveDeadPlayers
+gamerule from Minecraft 1.16.x, but in Minecraft 1.12.2
+
+If you've been struggling to get Mixins to work on 1.12.2,
+then please, use this project as an example. I've struggled for you.
+Make sure to credit me at the very least. It'll help spread the word
+about this mod, but it'll also bring this 1.12 Mixin example to the
+masses.
 
 # ForgeGradle README contents
 ## Source installation information for modders

@@ -1,3 +1,7 @@
-pigmen_forgiveness.command.forgive.usage=/forgive <player>
+pigmen_forgiveness.command.forgive.usage=/pigmen_forgive <player>
 pigmen_forgiveness.command.forgive.insufficient_args=Not enough arguments
 pigmen_forgiveness.command.forgive.bad_entity=Invalid entity supplied. Please supply a player entity
+pigmen_forgiveness.command.forgive.not_cached.1=The following entities aren't cached. Please rebuild the cache ASAP.
+pigmen_forgiveness.command.forgive.not_cached.2=The other specified players have been successfully saved from the pigmen.
+pigmen_forgiveness.command.reload.usage=/pigmen_reload
+pigmen_forgiveness.command.success=Success!
