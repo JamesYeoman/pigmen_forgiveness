@@ -1,14 +1,11 @@
 package com.degenerate_human.pigmen_forgiveness.handlers;
 
 import com.degenerate_human.pigmen_forgiveness.Constants;
-import com.degenerate_human.pigmen_forgiveness.PigmenForgiveness;
 import com.degenerate_human.pigmen_forgiveness.interfaces.ICanForgive;
 import com.degenerate_human.pigmen_forgiveness.utils.Hooks;
 import com.google.common.collect.Sets;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -20,7 +17,6 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static com.degenerate_human.pigmen_forgiveness.utils.Booleans.not;
 
@@ -67,7 +63,6 @@ public class PigmenAngerHandlers {
         reloadCache(world);
     }
 
-
     /*
      *TODO replace
      *
@@ -89,20 +84,20 @@ public class PigmenAngerHandlers {
 
     @SubscribeEvent
     public static void onPlayerDie(LivingDeathEvent event) {
-        if (!(event.getEntity() instanceof EntityPlayer)) {
-            return;
-        }
-
-        EntityPlayer player = (EntityPlayer)event.getEntity();
-
-        if (!(event.getSource().getTrueSource() instanceof EntityPigZombie)) {
-            return;
-        }
-
-        if (!targetedPlayers.containsKey(player.getUniqueID())) {
-            return;
-        }
-
-        untargetOnePlayer(player.getUniqueID());
+//        if (!(event.getEntity() instanceof EntityPlayer)) {
+//            return;
+//        }
+//
+//        EntityPlayer player = (EntityPlayer)event.getEntity();
+//
+//        if (!(event.getSource().getTrueSource() instanceof EntityPigZombie)) {
+//            return;
+//        }
+//
+//        if (!targetedPlayers.containsKey(player.getUniqueID())) {
+//            return;
+//        }
+//
+//        untargetOnePlayer(player.getUniqueID());
     }
 }

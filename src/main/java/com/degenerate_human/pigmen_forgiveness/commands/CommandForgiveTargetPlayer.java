@@ -1,6 +1,5 @@
 package com.degenerate_human.pigmen_forgiveness.commands;
 
-import com.degenerate_human.pigmen_forgiveness.handlers.PigmenAngerHandlers;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
@@ -13,6 +12,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.degenerate_human.pigmen_forgiveness.handlers.PigmenAngerHandlers.untargetOnePlayer;
 import static com.degenerate_human.pigmen_forgiveness.utils.Booleans.not;
 
 /*
@@ -77,7 +77,7 @@ public class CommandForgiveTargetPlayer extends PFCommand {
          * */
         //noinspection ConstantConditions
         goodEntities.stream()
-                .map(id -> new Tuple<>(id, PigmenAngerHandlers.untargetOnePlayer(id)))
+                .map(id -> new Tuple<>(id, untargetOnePlayer(id)))
                 .filter(data -> not(data.getSecond()))
                 .map(data -> server.getEntityFromUuid(data.getFirst()))
                 .map(Entity::getName)

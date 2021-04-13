@@ -1,10 +1,10 @@
 package com.degenerate_human.pigmen_forgiveness.commands;
 
-import com.sun.istack.internal.NotNull;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.text.TextComponentTranslation;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 
 /*
@@ -17,7 +17,7 @@ public abstract class PFCommand extends CommandBase {
     private final String usage;
     private final int requiredPermissionLevel;
 
-    public PFCommand(@NotNull String name, int requiredPermissionLevel) {
+    public PFCommand(@Nonnull String name, int requiredPermissionLevel) {
         this.name = name;
         this.usage = String.format("pigmen_forgiveness.command.%s.usage", name);
         this.requiredPermissionLevel = requiredPermissionLevel;
@@ -28,7 +28,7 @@ public abstract class PFCommand extends CommandBase {
      * */
     protected abstract Map<String, String> getTranslationStrings();
 
-    protected TextComponentTranslation getTranslationComponent(@NotNull String key) {
+    protected TextComponentTranslation getTranslationComponent(@Nonnull String key) {
         if (!translationStrings.containsKey(key)) {
             String errorStr = "Key %s doesn't exist in the defined translation strings map";
             throw new IllegalArgumentException(String.format(errorStr, key));
